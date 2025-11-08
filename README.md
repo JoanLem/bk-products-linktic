@@ -72,6 +72,7 @@ La aplicación estará disponible en: `http://localhost:8080`
 ## 📚 Endpoints de la API
 
 ### Base URL
+
 ```
 http://localhost:8080/api/v1/products
 ```
@@ -79,15 +80,19 @@ http://localhost:8080/api/v1/products
 ### Endpoints disponibles
 
 #### 1. Health Check
+
 ```http
 GET /api/v1/products/health
 ```
+
 **Respuesta:**
+
 ```
 API products V1 is working
 ```
 
 #### 2. Crear Producto
+
 ```http
 POST /api/v1/products
 Content-Type: application/json
@@ -101,6 +106,7 @@ Content-Type: application/json
 ```
 
 **Respuesta (201 Created):**
+
 ```json
 {
   "data": {
@@ -116,11 +122,13 @@ Content-Type: application/json
 ```
 
 #### 3. Obtener Producto por ID
+
 ```http
 GET /api/v1/products/{id}
 ```
 
 **Respuesta (200 OK):**
+
 ```json
 {
   "data": {
@@ -136,6 +144,7 @@ GET /api/v1/products/{id}
 ```
 
 **Error (404 Not Found):**
+
 ```json
 {
   "timestamp": "2025-01-08T20:18:23.753+00:00",
@@ -147,11 +156,13 @@ GET /api/v1/products/{id}
 ```
 
 #### 4. Listar Todos los Productos
+
 ```http
 GET /api/v1/products
 ```
 
 **Respuesta (200 OK):**
+
 ```json
 [
   {
@@ -201,6 +212,7 @@ Una vez que la aplicación esté ejecutándose, puedes acceder a la documentaci�
 ```
 
 El reporte de cobertura estará disponible en:
+
 ```
 target/site/jacoco/index.html
 ```
@@ -214,6 +226,7 @@ target/site/jacoco/index.html
 ### Estructura de pruebas
 
 Las pruebas están organizadas por funcionalidad:
+
 ```
 src/test/java/com/example/demo/
 ├── product/
@@ -351,10 +364,9 @@ Este proyecto está bajo la Licencia Apache 2.0.
 
 ## 📞 Soporte
 
-Para soporte, envía un email a support@linktic.com o abre un issue en el repositorio.
+Para soporte, envía un email a ing.joanlemus@gmail.com o abre un issue en el repositorio.
 
 ---
 
 **Versión:** 0.0.1-SNAPSHOT  
 **Última actualización:** 2025
-
