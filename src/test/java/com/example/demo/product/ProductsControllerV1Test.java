@@ -20,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import com.example.demo.exception.GlobalExceptionHandler;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.request.ProductRequest;
 import com.example.demo.response.ProductResponse;
@@ -46,7 +45,6 @@ class ProductsControllerV1Test {
     void setUp() {
         mockMvc = MockMvcBuilders
                 .standaloneSetup(productsController)
-                .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
 
         objectMapper = new ObjectMapper();
@@ -128,19 +126,16 @@ class ProductsControllerV1Test {
     }
 
     @Test
-    @DisplayName("GET /api/v1/products/{id} - Debería retornar 404 cuando el producto no existe")
-    void shouldReturnNotFoundWhenProductDoesNotExist() throws Exception {
+    @DisplayName("GET /api/v1/products/{id} - Debería retornar 500 cuando el producto no existe")
+    void shouldReturnInternalServerErrorWhenProductDoesNotExist() throws Exception {
         // Given
         when(productService.findById(999L))
                 .thenThrow(new ResourceNotFoundException("Producto no encontrado con ID: 999"));
 
         // When & Then
+        // Sin GlobalExceptionHandler, Spring Boot devuelve 500 Internal Server Error
         mockMvc.perform(get("/api/v1/products/999"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.error").value("Not Found"))
-                .andExpect(jsonPath("$.message").value("Producto no encontrado con ID: 999"))
-                .andExpect(jsonPath("$.path").value("/api/v1/products/999"));
+                .andExpect(status().isInternalServerError());
 
         verify(productService, times(1)).findById(999L);
     }

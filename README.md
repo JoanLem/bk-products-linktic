@@ -8,7 +8,7 @@ Esta aplicación proporciona un sistema completo de gestión de productos con la
 
 - **API REST** con endpoints para CRUD de productos
 - **Documentación automática** con OpenAPI/Swagger
-- **Base de datos en memoria** H2 para desarrollo
+- **Base de datos PostgreSQL** para persistencia de datos
 - **Manejo de excepciones** centralizado con respuestas estandarizadas
 - **Pruebas unitarias** con JUnit 5 y Mockito
 - **Cobertura de código** con JaCoCo
@@ -22,7 +22,7 @@ Esta aplicación proporciona un sistema completo de gestión de productos con la
   - Spring Data JPA
   - Spring Boot Actuator
   - Spring Boot Validation
-- **H2 Database** (en memoria)
+- **PostgreSQL** (base de datos relacional)
 - **Lombok** (reducción de boilerplate)
 - **OpenAPI/Swagger** (documentación)
 - **JUnit 5** (pruebas unitarias)
@@ -33,6 +33,7 @@ Esta aplicación proporciona un sistema completo de gestión de productos con la
 
 - **Java 21** o superior
 - **Maven 3.6+** o usar el wrapper incluido (`mvnw`)
+- **PostgreSQL 12+** instalado y ejecutándose **O Docker** (para usar docker-compose)
 - Cualquier IDE compatible (IntelliJ IDEA, Eclipse, VS Code)
 
 ## 🚀 Instalación
@@ -44,7 +45,60 @@ git clone https://github.com/JoanLem/bk-products-linktic.git
 cd bk-products
 ```
 
-### 2. Compilar el proyecto
+### 2. Configurar PostgreSQL
+
+Tienes dos opciones para configurar PostgreSQL:
+
+#### Opción A: Usando Docker Compose (Recomendado)
+
+1. Levanta el contenedor de PostgreSQL:
+```bash
+docker-compose up -d
+```
+
+2. El contenedor creará automáticamente la base de datos `bk_products` con las siguientes credenciales:
+   - **Usuario:** `root`
+   - **Contraseña:** `pruebaTecnica`
+   - **Base de datos:** `bk_products`
+   - **Puerto:** `5432`
+
+3. Edita el archivo `src/main/resources/application.properties` y configura:
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/bk_products
+spring.datasource.username=root
+spring.datasource.password=pruebaTecnica
+```
+
+**Comandos útiles de Docker:**
+```bash
+# Iniciar el contenedor
+docker-compose up -d
+
+# Ver logs del contenedor
+docker-compose logs -f postgres
+
+# Detener el contenedor
+docker-compose down
+
+# Detener y eliminar volúmenes (elimina los datos)
+docker-compose down -v
+```
+
+#### Opción B: PostgreSQL Local
+
+1. Crea una base de datos en PostgreSQL:
+```sql
+CREATE DATABASE bk_products;
+```
+
+2. Edita el archivo `src/main/resources/application.properties` y reemplaza los valores de conexión:
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/bk_products
+spring.datasource.username=tu_usuario
+spring.datasource.password=tu_contraseña
+```
+
+### 3. Compilar el proyecto
 
 ```bash
 # Usando Maven wrapper (recomendado)
@@ -54,7 +108,7 @@ cd bk-products
 mvn clean install
 ```
 
-### 3. Ejecutar la aplicación
+### 4. Ejecutar la aplicación
 
 ```bash
 # Usando Maven wrapper
@@ -273,26 +327,40 @@ bk-products/
 
 ### Base de Datos
 
-Por defecto, la aplicación usa H2 en memoria. La configuración está en `application.properties`:
+La aplicación utiliza **PostgreSQL** como base de datos. La configuración está en `application.properties`:
 
 ```properties
-spring.datasource.url=jdbc:h2:mem:bk_products
-spring.datasource.username=sa
-spring.jpa.hibernate.ddl-auto=create-drop
+spring.datasource.url=jdbc:postgresql://localhost:5432/bk_products
+spring.datasource.username=tu_usuario
+spring.datasource.password=tu_contraseña
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# JPA/Hibernate Configuration
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
 ```
 
-**Nota:** Los datos se pierden al reiniciar la aplicación ya que es una base de datos en memoria.
+**Configuración de DDL:**
+- `update`: Actualiza el esquema automáticamente al iniciar (recomendado para desarrollo)
+- `create`: Crea el esquema y elimina datos al reiniciar
+- `create-drop`: Crea el esquema al iniciar y lo elimina al cerrar
+- `validate`: Solo valida el esquema sin hacer cambios
+- `none`: No realiza ninguna acción
 
-### Consola H2 (Opcional)
+**Nota:** Para producción, se recomienda usar `validate` o `none` y manejar las migraciones con herramientas como Flyway o Liquibase.
 
-Para acceder a la consola de H2 durante el desarrollo, agrega en `application.properties`:
+### Configuración del Pool de Conexiones
+
+El proyecto utiliza HikariCP como pool de conexiones con la siguiente configuración:
 
 ```properties
-spring.h2.console.enabled=true
-spring.h2.console.path=/h2-console
+spring.datasource.hikari.maximum-pool-size=10
+spring.datasource.hikari.minimum-idle=5
+spring.datasource.hikari.connection-timeout=20000
+spring.datasource.hikari.idle-timeout=300000
+spring.datasource.hikari.max-lifetime=1200000
 ```
-
-Luego accede a: http://localhost:8080/h2-console
 
 ## 🔧 Comandos Útiles
 
