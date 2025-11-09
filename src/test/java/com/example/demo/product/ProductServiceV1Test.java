@@ -23,13 +23,13 @@ import com.example.demo.response.ProductResponse;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ProductService Tests")
-class ProductServiceTest {
+class ProductServiceV1Test {
 
     @Mock
     private ProductRepository productRepository;
 
     @InjectMocks
-    private ProductService productService;
+    private ProductServiceV1 productService;
 
     private ProductModel productModel;
     private ProductRequest productRequest;

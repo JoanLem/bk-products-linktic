@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 class ProductsControllerV1Test {
 
     @Mock
-    private ProductService productService;
+    private ProductServiceV1 productService;
 
     @InjectMocks
     private ProductsControllerV1 productsController;

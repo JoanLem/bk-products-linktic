@@ -30,7 +30,7 @@ import jakarta.validation.Valid;
 public class ProductsControllerV1 {
 
 	@Autowired
-	private ProductService productService;
+	private ProductServiceV1 productService;
 	
 	@Operation(summary = "Health check", description = "Verifica que la API esté funcionando correctamente")
 	@ApiResponse(responseCode = "200", description = "API funcionando correctamente")

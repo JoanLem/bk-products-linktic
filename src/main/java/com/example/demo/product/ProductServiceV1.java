@@ -8,15 +8,18 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.request.ProductRequest;
 import com.example.demo.response.ProductResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class ProductService {
+@Slf4j
+public class ProductServiceV1 {
 
 	private final ProductRepository repo;
 	
-	public ProductService(ProductRepository repo) {
+	public ProductServiceV1(ProductRepository repo) {
 		this.repo = repo;
 	}
 	
@@ -41,6 +44,7 @@ public class ProductService {
      */
     @Transactional(readOnly = true)
     public ProductResponse findById(Long id) {
+    	log.info(">>>>>> ejecutando findById en ProducService");
         ProductModel entity = repo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con ID: " + id));
         return toResponse(entity);
