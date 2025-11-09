@@ -47,7 +47,6 @@ class ProductServiceV1Test {
         productRequest.setName("Producto Test");
         productRequest.setPrice(new BigDecimal("99.99"));
         productRequest.setDescription("Descripción del producto");
-        productRequest.setStatus(true);
     }
 
     @Test
@@ -66,12 +65,10 @@ class ProductServiceV1Test {
 
         // Then
         assertNotNull(response);
-        assertNotNull(response.getData());
-        assertEquals("product", response.getData().getType());
-        assertEquals(1L, response.getData().getAttributes().getId());
-        assertEquals("Producto Test", response.getData().getAttributes().getName());
-        assertEquals(new BigDecimal("99.99"), response.getData().getAttributes().getPrice());
-        assertEquals("Descripción del producto", response.getData().getAttributes().getDescription());
+        assertEquals(1L, response.getId());
+        assertEquals("Producto Test", response.getName());
+        assertEquals(new BigDecimal("99.99"), response.getPrice());
+        assertEquals("Descripción del producto", response.getDescription());
 
         verify(productRepository, times(1)).save(any(ProductModel.class));
     }
@@ -87,8 +84,8 @@ class ProductServiceV1Test {
 
         // Then
         assertNotNull(response);
-        assertEquals(1L, response.getData().getAttributes().getId());
-        assertEquals("Producto Test", response.getData().getAttributes().getName());
+        assertEquals(1L, response.getId());
+        assertEquals("Producto Test", response.getName());
 
         verify(productRepository, times(1)).findById(1L);
     }
@@ -129,8 +126,10 @@ class ProductServiceV1Test {
         // Then
         assertNotNull(responses);
         assertEquals(2, responses.size());
-        assertEquals(1L, responses.get(0).getData().getAttributes().getId());
-        assertEquals(2L, responses.get(1).getData().getAttributes().getId());
+        assertEquals(1L, responses.get(0).getId());
+        assertEquals("Producto Test", responses.get(0).getName());
+        assertEquals(2L, responses.get(1).getId());
+        assertEquals("Producto 2", responses.get(1).getName());
 
         verify(productRepository, times(1)).findAll();
     }

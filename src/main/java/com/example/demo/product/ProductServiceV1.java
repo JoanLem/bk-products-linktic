@@ -34,7 +34,7 @@ public class ProductServiceV1 {
         entity.setName(request.getName());
         entity.setPrice(request.getPrice());
         entity.setDescription(request.getDescription());
-        entity.setStatus(request.getStatus());
+        entity.setStatus(true);
         repo.save(entity);
 
         return toResponse(entity);

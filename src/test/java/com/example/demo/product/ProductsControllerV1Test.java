@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.example.demo.exception.GlobalExceptionHandler;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.request.ProductRequest;
 import com.example.demo.response.ProductResponse;
@@ -45,6 +46,7 @@ class ProductsControllerV1Test {
     void setUp() {
         mockMvc = MockMvcBuilders
                 .standaloneSetup(productsController)
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
 
         objectMapper = new ObjectMapper();
@@ -53,7 +55,6 @@ class ProductsControllerV1Test {
         productRequest.setName("Producto Test");
         productRequest.setPrice(new BigDecimal("99.99"));
         productRequest.setDescription("Descripción del producto");
-        productRequest.setStatus(true);
 
         productResponse = new ProductResponse(
             1L,
@@ -83,11 +84,10 @@ class ProductsControllerV1Test {
                 .content(objectMapper.writeValueAsString(productRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.data.type").value("product"))
-                .andExpect(jsonPath("$.data.attributes.id").value(1L))
-                .andExpect(jsonPath("$.data.attributes.name").value("Producto Test"))
-                .andExpect(jsonPath("$.data.attributes.price").value(99.99))
-                .andExpect(jsonPath("$.data.attributes.description").value("Descripción del producto"));
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("Producto Test"))
+                .andExpect(jsonPath("$.price").value(99.99))
+                .andExpect(jsonPath("$.description").value("Descripción del producto"));
 
         verify(productService, times(1)).create(any(ProductRequest.class));
     }
@@ -104,7 +104,11 @@ class ProductsControllerV1Test {
         mockMvc.perform(post("/api/v1/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidRequest)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].field").exists())
+                .andExpect(jsonPath("$[0].message").exists());
 
         verify(productService, never()).create(any(ProductRequest.class));
     }
@@ -119,23 +123,25 @@ class ProductsControllerV1Test {
         mockMvc.perform(get("/api/v1/products/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.data.attributes.id").value(1L))
-                .andExpect(jsonPath("$.data.attributes.name").value("Producto Test"));
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("Producto Test"));
 
         verify(productService, times(1)).findById(1L);
     }
 
     @Test
-    @DisplayName("GET /api/v1/products/{id} - Debería retornar 500 cuando el producto no existe")
-    void shouldReturnInternalServerErrorWhenProductDoesNotExist() throws Exception {
+    @DisplayName("GET /api/v1/products/{id} - Debería retornar 404 cuando el producto no existe")
+    void shouldReturnNotFoundWhenProductDoesNotExist() throws Exception {
         // Given
         when(productService.findById(999L))
                 .thenThrow(new ResourceNotFoundException("Producto no encontrado con ID: 999"));
 
         // When & Then
-        // Sin GlobalExceptionHandler, Spring Boot devuelve 500 Internal Server Error
         mockMvc.perform(get("/api/v1/products/999"))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.field").value("id"))
+                .andExpect(jsonPath("$.message").value("Producto no encontrado con ID: 999"));
 
         verify(productService, times(1)).findById(999L);
     }
@@ -160,8 +166,10 @@ class ProductsControllerV1Test {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].data.attributes.id").value(1L))
-                .andExpect(jsonPath("$[1].data.attributes.id").value(2L));
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].name").value("Producto Test"))
+                .andExpect(jsonPath("$[1].id").value(2L))
+                .andExpect(jsonPath("$[1].name").value("Producto 2"));
 
         verify(productService, times(1)).findAll();
     }
