@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -80,6 +81,7 @@ public class ProductsControllerV1 {
 		)
 	})
 	@GetMapping("/{id}")
+	@SecurityRequirement(name = "apiKey")
 	public ResponseEntity<ProductResponse> getProductById(
 			@Parameter(description = "ID del producto", required = true, example = "1")
 			@PathVariable Long id) {
